@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
-from homelab_mcp import docker_tools
+from homelab_mcp import docker_tools, jellyfin_tools, minecraft_tools
+from homelab_mcp.audit import audited
 
 mcp = MCPServer(
     "homelab",
@@ -18,12 +19,14 @@ READ_ONLY = ToolAnnotations(read_only_hint=True, destructive_hint=False)
 
 
 @mcp.tool(annotations=READ_ONLY)
+@audited("ping")
 def ping() -> str:
     """Check that the MCP server is reachable. Returns 'pong'."""
     return "pong"
 
 
 @mcp.tool(annotations=READ_ONLY)
+@audited("server_info")
 def server_info() -> dict:
     """Host name, OS and the current UTC time of the machine running this server."""
     return {
@@ -34,6 +37,8 @@ def server_info() -> dict:
 
 
 docker_tools.register(mcp, READ_ONLY)
+jellyfin_tools.register(mcp, READ_ONLY)
+minecraft_tools.register(mcp, READ_ONLY)
 
 
 def main() -> None:
