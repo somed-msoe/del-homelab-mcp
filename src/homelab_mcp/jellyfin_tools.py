@@ -38,7 +38,13 @@ def _config() -> tuple[str, str]:
 
 
 def _http_get_json(url: str, api_key: str):
-    req = Request(url, headers={"X-Emby-Token": api_key, "Accept": "application/json"})
+    req = Request(
+        url,
+        headers={
+            "Authorization": f'MediaBrowser Token="{api_key}"',
+            "Accept": "application/json",
+        },
+    )
     with urlopen(req, timeout=TIMEOUT_SECONDS) as resp:  # noqa: S310 (scheme checked)
         return json.loads(resp.read(MAX_RESPONSE_BYTES))
 

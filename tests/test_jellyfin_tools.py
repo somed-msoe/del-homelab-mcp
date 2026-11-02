@@ -45,3 +45,25 @@ def test_registered_read_only():
     tool = {t.name: t for t in asyncio.run(mcp.list_tools())}["jellyfin_library_stats"]
     assert tool.annotations.read_only_hint is True
     assert not tool.input_schema.get("properties")
+
+
+def test_auth_header_is_mediabrowser_token(monkeypatch):
+    seen = {}
+
+    class Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            pass
+
+        def read(self, n):
+            return b"{}"
+
+    def fake_urlopen(req, timeout):
+        seen["auth"] = req.get_header("Authorization")
+        return Resp()
+
+    monkeypatch.setattr(jellyfin_tools, "urlopen", fake_urlopen)
+    jellyfin_tools._http_get_json("http://jf/x", "abc")
+    assert seen["auth"] == 'MediaBrowser Token="abc"'
