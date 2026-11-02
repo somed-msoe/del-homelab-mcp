@@ -4,7 +4,7 @@ An MCP server that lets an AI client (Claude Desktop or any MCP client) check
 on a home server: container status, logs, disk, Jellyfin and Minecraft.
 Read-only by default; anything that changes state is gated.
 
-Status: **Phase 1** (hello-world server, two harmless tools). Built on the
+Status: **Phase 2** (read-only Docker tools). Built on the
 official Python SDK, `mcp` 2.x (`MCPServer`, not the 1.x `FastMCP`).
 
 ## Run it
@@ -22,7 +22,9 @@ npx @modelcontextprotocol/inspector python -m homelab_mcp.server
 | Tool | Tier | Phase | Status |
 |------|------|-------|--------|
 | `ping`, `server_info` | read-only | 1 | done |
-| `container_status`, `tail_logs` (line cap), `disk_usage` | read-only | 2 | planned |
+| `container_status` | read-only | 2 | done: name, image, state, health, uptime |
+| `tail_logs(container, lines=50)` | read-only | 2 | done: name validated, max 200 lines / ~16 KB, secrets redacted, output labelled untrusted |
+| `disk_usage` | read-only | 2 | done: main filesystem plus per-container size from the Docker API |
 | `jellyfin_library_stats`, `minecraft_status` | read-only | 3 | planned |
 | `restart_container` (allowlist + confirmation) | write | 4 | planned |
 
