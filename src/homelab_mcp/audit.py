@@ -21,8 +21,10 @@ def audit_path() -> Path:
 
 def _write(record: dict) -> None:
     path = audit_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as f:
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    # Owner-only: the log records tool arguments.
+    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+    with os.fdopen(fd, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, default=str) + "\n")
 
 

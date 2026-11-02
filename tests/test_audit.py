@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 
 import pytest
 
@@ -62,3 +63,17 @@ def test_token_arguments_are_not_logged(audit_log):
     demo("web", confirm_token="s3cret-token")
     assert "s3cret-token" not in audit_log.read_text()
     assert _records(audit_log)[0]["arguments"]["confirm_token"] == "[REDACTED]"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permissions")
+def test_audit_log_is_owner_only(tmp_path, monkeypatch):
+    path = tmp_path / "newdir" / "audit.log"
+    monkeypatch.setenv("HOMELAB_MCP_AUDIT_LOG", str(path))
+
+    @audited("demo")
+    def demo():
+        pass
+
+    demo()
+    assert (path.stat().st_mode & 0o777) == 0o600
+    assert (path.parent.stat().st_mode & 0o777) == 0o700
