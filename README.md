@@ -110,3 +110,7 @@ closing tag in Minecraft chat, plus a leaked `rcon.password`. The demo shows:
    confirmation token. A made-up token is refused.
 5. **The audit trail**: all attempts, including refused ones, with the token
    redacted.
+
+## Related
+
+- [del-homelab](https://github.com/somed-msoe/del-homelab): the homelab this server reports on.
