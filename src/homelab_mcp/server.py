@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
-from homelab_mcp import docker_tools, jellyfin_tools, minecraft_tools
+from homelab_mcp import docker_tools, docker_write_tools, jellyfin_tools, minecraft_tools
 from homelab_mcp.audit import audited
 
 mcp = MCPServer(
@@ -39,6 +39,7 @@ def server_info() -> dict:
 docker_tools.register(mcp, READ_ONLY)
 jellyfin_tools.register(mcp, READ_ONLY)
 minecraft_tools.register(mcp, READ_ONLY)
+docker_write_tools.register(mcp)
 
 
 def main() -> None:
