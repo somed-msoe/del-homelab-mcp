@@ -14,6 +14,7 @@ import docker
 from docker.errors import NotFound
 
 from homelab_mcp.audit import audited
+from homelab_mcp.errors import UserError
 from homelab_mcp.untrusted import cap_bytes, redact, wrap_untrusted
 
 MAX_LINES = 200
@@ -30,7 +31,7 @@ def validate_container_name(name: str) -> str:
         or len(name) > MAX_NAME_LEN
         or not _NAME_RE.fullmatch(name)
     ):
-        raise ValueError(
+        raise UserError(
             "Invalid container name: use letters, digits, '_', '.', '-' "
             f"(max {MAX_NAME_LEN}, must start with a letter or digit)."
         )
@@ -39,7 +40,7 @@ def validate_container_name(name: str) -> str:
 
 def _clamp_lines(lines: int) -> int:
     if isinstance(lines, bool) or not isinstance(lines, int) or lines < 1:
-        raise ValueError("lines must be a positive integer")
+        raise UserError("lines must be a positive integer")
     return min(lines, MAX_LINES)
 
 
@@ -80,7 +81,7 @@ def tail_logs(client, container: str, lines: int = 50) -> str:
     try:
         c = client.containers.get(name)
     except NotFound:
-        raise ValueError(f"No such container: {name}") from None
+        raise UserError(f"No such container: {name}") from None
 
     raw = c.logs(stdout=True, stderr=True, tail=n, timestamps=False)
     text = raw.decode("utf-8", errors="replace") if isinstance(raw, bytes) else str(raw)

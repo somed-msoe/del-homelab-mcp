@@ -52,3 +52,13 @@ def test_long_arguments_are_truncated(audit_log):
 
     demo("a" * 5000)
     assert len(_records(audit_log)[0]["arguments"]["arg0"]) < 300
+
+
+def test_token_arguments_are_not_logged(audit_log):
+    @audited("demo")
+    def demo(container, confirm_token=None):
+        pass
+
+    demo("web", confirm_token="s3cret-token")
+    assert "s3cret-token" not in audit_log.read_text()
+    assert _records(audit_log)[0]["arguments"]["confirm_token"] == "[REDACTED]"

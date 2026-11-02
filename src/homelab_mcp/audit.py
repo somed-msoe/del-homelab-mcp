@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 _MAX_ARG_CHARS = 200
+_SENSITIVE = ("token", "password", "secret", "key")
 
 
 def audit_path() -> Path:
@@ -39,7 +40,8 @@ def audited(tool_name: str):
             record = {
                 "time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 "tool": tool_name,
-                "arguments": {k: _short(v) for k, v in kwargs.items()}
+                "arguments": {k: "[REDACTED]" if any(w in k.lower() for w in _SENSITIVE) else _short(v)
+                              for k, v in kwargs.items()}
                 | {f"arg{i}": _short(v) for i, v in enumerate(args)},
             }
             _write({**record, "event": "call"})
