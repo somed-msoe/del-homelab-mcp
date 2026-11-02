@@ -29,6 +29,18 @@ _REDACTIONS: list[tuple[re.Pattern, str]] = [
 ]
 
 
+_ANSI_RE = re.compile(
+    r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-Z\\-_])"
+)
+_CONTROL_RE = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
+
+
+def strip_control(text: str) -> str:
+    """Drop ANSI escape sequences and control characters (keeps newline and tab)."""
+    text = text.replace("\r\n", "\n")
+    return _CONTROL_RE.sub("", _ANSI_RE.sub("", text))
+
+
 def redact(text: str) -> str:
     for pattern, replacement in _REDACTIONS:
         text = pattern.sub(replacement, text)

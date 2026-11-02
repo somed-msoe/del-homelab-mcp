@@ -15,7 +15,7 @@ from docker.errors import NotFound
 
 from homelab_mcp.audit import audited
 from homelab_mcp.errors import UserError
-from homelab_mcp.untrusted import cap_bytes, redact, wrap_untrusted
+from homelab_mcp.untrusted import cap_bytes, redact, strip_control, wrap_untrusted
 
 MAX_LINES = 200
 MAX_LOG_BYTES = 16 * 1024
@@ -86,7 +86,7 @@ def tail_logs(client, container: str, lines: int = 50) -> str:
     raw = c.logs(stdout=True, stderr=True, tail=n, timestamps=False)
     text = raw.decode("utf-8", errors="replace") if isinstance(raw, bytes) else str(raw)
     # Redact before truncating so a cut can't leave half a secret unmatched.
-    text, truncated = cap_bytes(redact(text), MAX_LOG_BYTES)
+    text, truncated = cap_bytes(redact(strip_control(text)), MAX_LOG_BYTES)
     return wrap_untrusted(text, container=name, lines_requested=n, truncated=truncated)
 
 

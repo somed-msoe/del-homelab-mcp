@@ -156,3 +156,12 @@ def test_disk_usage():
         {"name": "db", "writable_layer_bytes": 0, "rootfs_bytes": 200},
         {"name": "web", "writable_layer_bytes": 10, "rootfs_bytes": 100},
     ]
+
+
+def test_tail_logs_strips_ansi_and_control_characters():
+    log = (b"\x1b[36m2026-10-31\x1b[0m \x1b[32m[ SERVER ]\x1b[0m \x1b[38;5;119mINFO\x1b[0m ok\r\n"
+           b"\x1b]0;evil title\x07bell\x07 null\x00 end\n")
+    out = docker_tools.tail_logs(FakeClient([FakeContainer("web", logs=log)]), "web")
+    assert "\x1b" not in out and "\x07" not in out and "\x00" not in out and "\r" not in out
+    assert "2026-10-31 [ SERVER ] INFO ok" in out
+    assert "evil title" not in out
