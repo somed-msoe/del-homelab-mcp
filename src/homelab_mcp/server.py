@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
+from homelab_mcp import docker_tools
+
 mcp = MCPServer(
     "homelab",
     instructions=(
@@ -29,6 +31,9 @@ def server_info() -> dict:
         "os": f"{platform.system()} {platform.release()}",
         "utc_time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
+
+
+docker_tools.register(mcp, READ_ONLY)
 
 
 def main() -> None:

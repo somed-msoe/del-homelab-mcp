@@ -3,7 +3,7 @@ name = "homelab-mcp"
 version = "0.1.0"
 description = "MCP server exposing read-only homelab status tools to AI clients"
 requires-python = ">=3.11"
-dependencies = ["mcp>=2,<3"]
+dependencies = ["mcp>=2,<3", "docker>=7,<8"]
 
 [build-system]
 requires = ["setuptools>=68"]
