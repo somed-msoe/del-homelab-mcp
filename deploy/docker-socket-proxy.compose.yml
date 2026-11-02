@@ -1,0 +1,22 @@
+# Read-only Docker API proxy for the MCP server's status tools.
+# Allows: list/inspect/logs (CONTAINERS) and /system/df (SYSTEM), GET only.
+# Does NOT allow any POST, so nothing can be created, started, stopped or exec'd.
+# Point the read tools at it with DOCKER_HOST=tcp://127.0.0.1:2375
+#
+# UNTESTED against this setup: after starting it, confirm container_status,
+# tail_logs and disk_usage still work through it. Note the proxy itself mounts
+# the real socket, so it is the thing to keep off the network (bound to localhost).
+services:
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: docker-socket-proxy
+    restart: unless-stopped
+    privileged: true   # per the project README, required for socket access
+    environment:
+      CONTAINERS: 1
+      SYSTEM: 1
+      POST: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "127.0.0.1:2375:2375"
